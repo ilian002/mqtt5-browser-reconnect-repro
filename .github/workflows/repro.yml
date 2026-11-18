@@ -1,0 +1,45 @@
+name: repro
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.platform }} / mqtt5_client ${{ matrix.variant }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, platform: safari, variant: 5.4.0 }
+          - { os: macos-latest, platform: safari, variant: 5.4.0+fix }
+          - { os: ubuntu-latest, platform: chrome, variant: 5.4.0 }
+          - { os: ubuntu-latest, platform: chrome, variant: 5.4.0+fix }
+          - { os: ubuntu-latest, platform: firefox, variant: 5.4.0 }
+          - { os: ubuntu-latest, platform: firefox, variant: 5.4.0+fix }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.14.0
+
+      - name: Install Mosquitto (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install mosquitto
+          echo "MOSQUITTO=$(brew --prefix)/sbin/mosquitto" >> "$GITHUB_ENV"
+      - name: Install Mosquitto (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mosquitto
+          sudo systemctl disable --now mosquitto || true
+          echo "MOSQUITTO=/usr/sbin/mosquitto" >> "$GITHUB_ENV"
+
+      - name: Apply the one-line fix
+        if: matrix.variant == '5.4.0+fix'
+        run: tool/apply_fix.sh
+
+      - run: dart pub get
+      - run: dart test -p ${{ matrix.platform }} --reporter expanded

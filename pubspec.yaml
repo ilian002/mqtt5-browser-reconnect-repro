@@ -1,0 +1,14 @@
+name: mqtt5_browser_reconnect_repro
+description: Reproduces an mqtt5_client browser auto-reconnect failure when a websocket fires error then close.
+publish_to: none
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  mqtt5_client: 5.4.0
+
+dev_dependencies:
+  stream_channel: ^2.1.0
+  test: ^1.25.0
+  web: ^1.1.0
