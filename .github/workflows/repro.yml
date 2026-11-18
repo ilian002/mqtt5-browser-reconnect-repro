@@ -35,7 +35,11 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq mosquitto
           sudo systemctl disable --now mosquitto || true
-          echo "MOSQUITTO=/usr/sbin/mosquitto" >> "$GITHUB_ENV"
+          # Ubuntu's AppArmor profile for /usr/sbin/mosquitto only allows
+          # config files under /etc/mosquitto; a copy elsewhere is unconfined.
+          ls /etc/apparmor.d | grep -i mosquitto || true
+          cp /usr/sbin/mosquitto "$RUNNER_TEMP/mosquitto"
+          echo "MOSQUITTO=$RUNNER_TEMP/mosquitto" >> "$GITHUB_ENV"
 
       - name: Apply the one-line fix
         if: matrix.variant == '5.4.0+fix'
