@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} / mqtt5_client ${{ matrix.variant }}
+    name: ${{ matrix.platform }} (${{ matrix.os }}) / mqtt5_client ${{ matrix.variant }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -14,6 +14,8 @@ jobs:
         include:
           - { os: macos-latest, platform: safari, variant: 5.4.0 }
           - { os: macos-latest, platform: safari, variant: 5.4.0+fix }
+          - { os: macos-latest, platform: chrome, variant: 5.4.0 }
+          - { os: macos-latest, platform: chrome, variant: 5.4.0+fix }
           - { os: ubuntu-latest, platform: chrome, variant: 5.4.0 }
           - { os: ubuntu-latest, platform: chrome, variant: 5.4.0+fix }
           - { os: ubuntu-latest, platform: firefox, variant: 5.4.0 }
