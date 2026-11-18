@@ -42,4 +42,10 @@ jobs:
         run: tool/apply_fix.sh
 
       - run: dart pub get
-      - run: dart test -p ${{ matrix.platform }} --reporter expanded
+      - name: dart test -p ${{ matrix.platform }}
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then
+            xvfb-run -a dart test -p ${{ matrix.platform }} --reporter expanded
+          else
+            dart test -p ${{ matrix.platform }} --reporter expanded
+          fi

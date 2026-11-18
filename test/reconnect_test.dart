@@ -39,9 +39,10 @@ Future<void> hybridMain(StreamChannel channel) async {
   final bin = Platform.environment['MOSQUITTO'] ?? 'mosquitto';
 
   Future<Process> start() async {
-    final p = await Process.start(bin, ['-c', conf.path]);
-    p.stdout.drain<void>();
-    p.stderr.drain<void>();
+    final p = await Process.start(bin, ['-c', conf.path, '-v']);
+    final out = StringBuffer();
+    p.stdout.transform(const SystemEncoding().decoder).listen(out.write);
+    p.stderr.transform(const SystemEncoding().decoder).listen(out.write);
     for (var i = 0; i < 100; i++) {
       try {
         (await Socket.connect(InternetAddress.loopbackIPv4, port)).destroy();
@@ -50,7 +51,9 @@ Future<void> hybridMain(StreamChannel channel) async {
         await Future<void>.delayed(const Duration(milliseconds: 50));
       }
     }
-    throw StateError('mosquitto did not start on port $port');
+    p.kill();
+    throw StateError('mosquitto did not start on port $port.\n'
+        'Config:\n${conf.readAsStringSync()}Output:\n$out');
   }
 
   var broker = await start();
