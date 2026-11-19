@@ -128,6 +128,9 @@ void main() {
 
     final client = MqttBrowserClient('ws://127.0.0.1', 'repro-client')
       ..port = port
+      // Safari doesn't complete the handshake with mqtt_client's default list
+      // ['mqtt', 'mqttv3.1', 'mqttv3.11']; offer only 'mqtt'.
+      ..websocketProtocols = MqttClientConstants.protocolsSingleDefault
       ..keepAlivePeriod = 60
       ..autoReconnect = true
       ..logging(on: false);
