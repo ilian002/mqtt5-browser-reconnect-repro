@@ -4,6 +4,15 @@ A minimal reproduction for [mqtt5_client](https://pub.dev/packages/mqtt5_client)
 doesn't auto-reconnect in Safari after the broker connection drops. Follow-up to
 [shamblett/mqtt5_client#210](https://github.com/shamblett/mqtt5_client/issues/210).
 
+**Fixed in mqtt5_client 5.4.1** ([#212](https://github.com/shamblett/mqtt5_client/pull/212)). The
+[CI run against 5.4.0](https://github.com/ilian002/mqtt5-browser-reconnect-repro/actions/runs/44347271071)
+shows the failure and the fix.
+
+CI now runs the same test against [mqtt_client](https://pub.dev/packages/mqtt_client) (MQTT 3.1.1),
+whose browser connection has the same `_startListening()` code:
+[`test/mqtt_client_reconnect_test.dart`](test/mqtt_client_reconnect_test.dart), with the fix applied by
+[`tool/apply_fix_mqtt_client.sh`](tool/apply_fix_mqtt_client.sh).
+
 ## The test
 
 [`test/reconnect_test.dart`](test/reconnect_test.dart) starts a local Mosquitto with a websocket

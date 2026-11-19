@@ -6,20 +6,19 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} (${{ matrix.os }}) / mqtt5_client ${{ matrix.variant }}
+    name: ${{ matrix.platform }} (${{ matrix.os }}) / mqtt_client ${{ matrix.variant }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # mqtt5_client is fixed in 5.4.1 (see README); CI now covers mqtt_client.
         include:
-          - { os: macos-latest, platform: safari, variant: 5.4.0 }
-          - { os: macos-latest, platform: safari, variant: 5.4.0+fix }
-          - { os: macos-latest, platform: chrome, variant: 5.4.0 }
-          - { os: macos-latest, platform: chrome, variant: 5.4.0+fix }
-          - { os: ubuntu-latest, platform: chrome, variant: 5.4.0 }
-          - { os: ubuntu-latest, platform: chrome, variant: 5.4.0+fix }
-          - { os: ubuntu-latest, platform: firefox, variant: 5.4.0 }
-          - { os: ubuntu-latest, platform: firefox, variant: 5.4.0+fix }
+          - { os: macos-latest, platform: safari, variant: 10.14.0 }
+          - { os: macos-latest, platform: safari, variant: 10.14.0+fix }
+          - { os: ubuntu-latest, platform: chrome, variant: 10.14.0 }
+          - { os: ubuntu-latest, platform: chrome, variant: 10.14.0+fix }
+          - { os: ubuntu-latest, platform: firefox, variant: 10.14.0 }
+          - { os: ubuntu-latest, platform: firefox, variant: 10.14.0+fix }
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
@@ -44,14 +43,14 @@ jobs:
           echo "MOSQUITTO=$RUNNER_TEMP/mosquitto" >> "$GITHUB_ENV"
 
       - name: Apply the one-line fix
-        if: matrix.variant == '5.4.0+fix'
-        run: tool/apply_fix.sh
+        if: matrix.variant == '10.14.0+fix'
+        run: tool/apply_fix_mqtt_client.sh
 
       - run: dart pub get
       - name: dart test -p ${{ matrix.platform }}
         run: |
           if [ "$RUNNER_OS" = Linux ]; then
-            xvfb-run -a dart test -p ${{ matrix.platform }} --reporter expanded
+            xvfb-run -a dart test -p ${{ matrix.platform }} --reporter expanded test/mqtt_client_reconnect_test.dart
           else
-            dart test -p ${{ matrix.platform }} --reporter expanded
+            dart test -p ${{ matrix.platform }} --reporter expanded test/mqtt_client_reconnect_test.dart
           fi

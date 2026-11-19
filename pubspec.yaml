@@ -7,6 +7,7 @@ environment:
 
 dependencies:
   mqtt5_client: 5.4.0
+  mqtt_client: 10.14.0
 
 dev_dependencies:
   stream_channel: ^2.1.0
